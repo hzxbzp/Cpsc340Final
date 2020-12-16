@@ -79,7 +79,7 @@ class ARIMA():
 
         # transform X
         for row in range(11,41):
-            for col in range(22):
+            for col in range(2):
                 X = self.create_X(df, last_row=row-1, col_index=col)
                 y = self.create_y(df, last_row=row, col_index=col)
                 model = LeastSquares()
@@ -119,7 +119,8 @@ class ARIMA():
         AR_ret = self.AR(df=df_X_test).reset_index(drop=True)
         pred_y = AR_ret.iloc[:,:2]
         pred_y_np = pred_y + self.shift_factor_y
-        pred_y_np = np.log(pred_y)
+        pred_y_np[pred_y_np < 0] = 0.1
+        pred_y_np = np.log(pred_y_np)
         pred_y_first_row = np.zeros((1,2))
         pred_y_np = np.vstack((pred_y_first_row, pred_y_np)).cumsum(axis=0)
         pred_y_np = np.delete(pred_y_np, 0, axis = 0)
