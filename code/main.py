@@ -3,6 +3,7 @@ import pandas as pd
 import ARIMA
 import time
 import trajectory_prediction as tp
+from sklearn import train_test_split
 
 # Referenced https://datascience.stackexchange.com/questions/33081/similarity-between-two-scatter-plots
 ################################################################################
@@ -64,6 +65,9 @@ del X_list[858]
 del y_list[858]
 del X_list[2166]
 del y_list[2166]
+
+# Cross Validation
+X_list_tr, X_list_te, y_list_tr, y_list_te = train_test_split(X_list, y_list, size=0.2)
 
 # 2308 total samples, 2305 good samples
 model_list = [ARIMA.ARIMA(learning_rate=1, iterations=1000, l1_penality=1, lag=6)] * 2308
