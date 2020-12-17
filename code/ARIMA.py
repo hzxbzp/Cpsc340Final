@@ -94,8 +94,8 @@ class ARIMA():
         return df.iloc[-30:,:]
 
     def MA(self, df_X, df_y):
-        true_y_bar = np.mean(df_y.to_numpy(),axis=0)
-        pred_y_bar = np.mean(df_X.iloc[:,:2].to_numpy(),axis=0)
+        true_y_bar = np.median(df_y.to_numpy(),axis=0)
+        pred_y_bar = np.median(df_X.iloc[:,:2].to_numpy(),axis=0)
         return true_y_bar - pred_y_bar
 
     def fit(self, df_X, df_y):
@@ -112,14 +112,17 @@ class ARIMA():
         df_y.iloc[0,1] = df_y_first_row[1]
         self.shift_factor_y = self.MA(AR_ret, df_y)
     
-    def predict(self, df_X_test):
+    def predict_pre_process(self, df_X_test):
         df_X_test.iloc[:,2:] = df_X_test.iloc[:,2:].replace(0, np.nan)
         df_X_test = pd.DataFrame(df_X_test.diff())
         df_X_test = pd.DataFrame(np.exp(df_X_test))
-        AR_ret = self.AR(df=df_X_test).reset_index(drop=True)
+        return self.AR(df=df_X_test).reset_index(drop=True)
+
+    def predict(self, AR_ret):
         pred_y = AR_ret.iloc[:,:2]
         pred_y_np = pred_y + self.shift_factor_y
-        pred_y_np[pred_y_np < 0] = 0.1
+        pred_y_np[pred_y_np < 0] = 0.37
+        pred_y_np[pred_y_np > 2.7] = 2.7
         pred_y_np = np.log(pred_y_np)
         pred_y_first_row = np.zeros((1,2))
         pred_y_np = np.vstack((pred_y_first_row, pred_y_np)).cumsum(axis=0)
